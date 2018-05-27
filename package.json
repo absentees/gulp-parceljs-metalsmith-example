@@ -1,0 +1,20 @@
+{
+  "name": "untitled-document",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:absentees/untitled-document.git",
+  "author": "absentees <scott@presentcompany.co>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "parcel src/index.html --open --no-cache"
+  },
+  "devDependencies": {
+    "node-sass": "^4.9.0"
+  },
+  "dependencies": {
+    "gulp": "^3.9.1",
+    "gulp-metalsmith": "^1.1.0",
+    "gulp-parcel": "^0.3.5",
+    "metalsmith-markdown": "^0.2.2"
+  }
+}
