@@ -4,6 +4,8 @@ const debug = require('metalsmith-debug');
 const markdown = require('metalsmith-markdown');
 const parcel = require('gulp-parcel');
 const layouts = require('metalsmith-layouts');
+const del = require('del');
+
 
 // gulp.task('metalsmith', function() {
 //   return gulp.src('src/**/*.html', {
@@ -20,10 +22,10 @@ const layouts = require('metalsmith-layouts');
 //     .pipe(gulp.dest('dist'));
 // });
 
-gulp.task('metalsmith', function (cb) {
+exports.metalsmith = function (cb) {
 	metalsmith(__dirname)
 		.source('src/html/pages')
-		.destination('src/html/prebuild')
+		.destination('src/build')
 		.clean(false)
 		// .use(collections({
 		// 	sites: {
@@ -45,16 +47,36 @@ gulp.task('metalsmith', function (cb) {
 			}
 			cb();
 		});
-});
+};
 
-gulp.task('build', ['metalsmith'], function (cb) {
-	return gulp.src('src/html/prebuild/**/*.html', {
+exports.css = function() {
+	gulp.src('src/css/**/*')
+		.pipe(gulp.dest('src/build/css'));
+};
+
+exports.js = function() {
+	gulp.src('src/js/**/*')
+		.pipe(gulp.dest('src/build/js'));
+};
+
+exports.clean = function() {
+	return del([
+		'src/build/**/*',
+		'dist/**/*'
+	  ]);
+};
+
+exports.bundle = function () {
+	return gulp.src('src/build/*.html', {
 			read: false
 		})
 		.pipe(parcel({
-            source: "src/",
             outDir: 'dist',
-            publicURL: './'
+			publicURL: './'
 		}))
 		.pipe(gulp.dest('dist'));
-});
+};
+
+// const build = gulp.series('clean','metalsmith', 'css', 'js', 'bundle');
+
+// gulp.task('build', build);
