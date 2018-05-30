@@ -5,35 +5,14 @@ const markdown = require('metalsmith-markdown');
 const parcel = require('gulp-parcel');
 const layouts = require('metalsmith-layouts');
 const del = require('del');
+const shell = require('gulp-shell')
 
 
-// gulp.task('metalsmith', function() {
-//   return gulp.src('src/**/*.html', {
-//       read: false
-//   })
-//     .pipe(metalsmith({
-//         use: [
-//             markdown()
-//           ]
-//     }))
-//     .pipe(parcel({
-//         source: "src/"
-//     }))
-//     .pipe(gulp.dest('dist'));
-// });
-
-exports.metalsmith = function (cb) {
+function html (cb) {
 	metalsmith(__dirname)
 		.source('src/html/pages')
 		.destination('src/build')
 		.clean(false)
-		// .use(collections({
-		// 	sites: {
-		// 		pattern: 'sites/*.md',
-		// 		sortBy: 'date',
-		// 		reverse: true
-		// 	}
-		// }))
 		.use(debug())
 		.use(markdown())
 		.use(layouts({
@@ -49,34 +28,46 @@ exports.metalsmith = function (cb) {
 		});
 };
 
-exports.css = function() {
-	gulp.src('src/css/**/*')
+function css () {
+	return gulp.src('src/css/**/*')
 		.pipe(gulp.dest('src/build/css'));
 };
 
-exports.js = function() {
-	gulp.src('src/js/**/*')
+function js() {
+	return gulp.src('src/js/**/*')
 		.pipe(gulp.dest('src/build/js'));
 };
 
-exports.clean = function() {
+function clean() {
 	return del([
 		'src/build/**/*',
 		'dist/**/*'
 	  ]);
 };
 
-exports.bundle = function () {
-	return gulp.src('src/build/*.html', {
-			read: false
-		})
-		.pipe(parcel({
-            outDir: 'dist',
-			publicURL: './'
-		}))
-		.pipe(gulp.dest('dist'));
-};
+exports.clean = clean;
+exports.js = js;
+exports.css = css;
+exports.html = html;
 
-// const build = gulp.series('clean','metalsmith', 'css', 'js', 'bundle');
+// function bundle() {
+// 	return gulp.src('src/build/*.html', {
+// 			read: false
+// 		})
+// 		.pipe(parcel({
+//             outDir: 'dist',
+// 			publicURL: './'
+// 		}))
+// 		.pipe(gulp.dest('dist'));
+// };
 
-// gulp.task('build', build);
+function bundle() {
+	return gulp.src('src/build/**/*.html', { read: false })
+	.pipe(shell([
+		'./node_modules/parcel-bundler/bin/cli.js <%= file.path %> --public-url ./ --out-dir dist'
+	]));
+}
+
+let build = gulp.series(clean, html, css, js, bundle);
+
+gulp.task('build', build);
